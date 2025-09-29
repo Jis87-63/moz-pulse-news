@@ -1,15 +1,30 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { mockNews } from "@/data/mockNews";
+import { useState, useEffect } from "react";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Share2, Clock, User, Calendar } from "lucide-react";
+import { ArrowLeft, Share2, Clock, User, Calendar, Volume2, VolumeX, Pause, Play } from "lucide-react";
 import { toast } from "sonner";
+import { useTextToSpeech } from "@/hooks/useTextToSpeech";
+import { NewsArticle } from "@/types/news";
 
 const NewsDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const article = mockNews.find((news) => news.id === id);
+  const [article, setArticle] = useState<NewsArticle | null>(null);
+  const { speak, pause, resume, stop, isSpeaking, isPaused, isSupported } = useTextToSpeech();
+
+  useEffect(() => {
+    // Buscar artigo do localStorage (cache de notícias do RSS)
+    const cachedNews = localStorage.getItem('rss-news');
+    if (cachedNews) {
+      const news = JSON.parse(cachedNews);
+      const foundArticle = news.find((n: NewsArticle) => n.id === id);
+      if (foundArticle) {
+        setArticle(foundArticle);
+      }
+    }
+  }, [id]);
 
   if (!article) {
     return (
@@ -37,6 +52,8 @@ const NewsDetail = () => {
   };
 
   const handleShare = async () => {
+    if (!article) return;
+    
     const shareData = {
       title: article.title,
       text: `${article.summary}\n\nLeia mais em:`,
@@ -57,6 +74,27 @@ const NewsDetail = () => {
       console.error("Error sharing:", error);
       toast.error("Erro ao compartilhar notícia");
     }
+  };
+
+  const handleReadAloud = () => {
+    if (!article) return;
+
+    if (isSpeaking && !isPaused) {
+      pause();
+      toast.info("Leitura pausada");
+    } else if (isPaused) {
+      resume();
+      toast.info("Continuando leitura");
+    } else {
+      const textToRead = `${article.title}. ${article.summary}. ${article.content}`;
+      speak(textToRead);
+      toast.success("Iniciando leitura em voz alta");
+    }
+  };
+
+  const handleStopReading = () => {
+    stop();
+    toast.info("Leitura interrompida");
   };
 
   return (
@@ -100,15 +138,53 @@ const NewsDetail = () => {
                 <Clock className="h-4 w-4" />
                 <span>{article.readTime} min de leitura</span>
               </div>
-              <Button
-                onClick={handleShare}
-                variant="ghost"
-                size="sm"
-                className="ml-auto hover:bg-primary/10"
-              >
-                <Share2 className="h-4 w-4 mr-2" />
-                Compartilhar
-              </Button>
+              <div className="flex items-center gap-2 ml-auto">
+                {isSupported && (
+                  <>
+                    {isSpeaking ? (
+                      <>
+                        <Button
+                          onClick={handleReadAloud}
+                          variant="ghost"
+                          size="sm"
+                          className="hover:bg-primary/10"
+                        >
+                          {isPaused ? <Play className="h-4 w-4 mr-2" /> : <Pause className="h-4 w-4 mr-2" />}
+                          {isPaused ? 'Continuar' : 'Pausar'}
+                        </Button>
+                        <Button
+                          onClick={handleStopReading}
+                          variant="ghost"
+                          size="sm"
+                          className="hover:bg-primary/10"
+                        >
+                          <VolumeX className="h-4 w-4 mr-2" />
+                          Parar
+                        </Button>
+                      </>
+                    ) : (
+                      <Button
+                        onClick={handleReadAloud}
+                        variant="ghost"
+                        size="sm"
+                        className="hover:bg-primary/10"
+                      >
+                        <Volume2 className="h-4 w-4 mr-2" />
+                        Ouvir notícia
+                      </Button>
+                    )}
+                  </>
+                )}
+                <Button
+                  onClick={handleShare}
+                  variant="ghost"
+                  size="sm"
+                  className="hover:bg-primary/10"
+                >
+                  <Share2 className="h-4 w-4 mr-2" />
+                  Compartilhar
+                </Button>
+              </div>
             </div>
           </div>
 

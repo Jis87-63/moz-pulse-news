@@ -3,28 +3,84 @@ import { CookieConsent } from "@/components/CookieConsent";
 import { LoadingScreen } from "@/components/LoadingScreen";
 import { Header } from "@/components/Header";
 import { NewsCard } from "@/components/NewsCard";
-import { mockNews } from "@/data/mockNews";
+import { NewsArticle } from "@/types/news";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 const Index = () => {
   const [showLoading, setShowLoading] = useState(false);
   const [isReady, setIsReady] = useState(false);
-  const [filteredNews, setFilteredNews] = useState(mockNews);
+  const [allNews, setAllNews] = useState<NewsArticle[]>([]);
+  const [filteredNews, setFilteredNews] = useState<NewsArticle[]>([]);
   const [selectedCategory, setSelectedCategory] = useState("Todas");
+  const [isLoadingNews, setIsLoadingNews] = useState(true);
 
   useEffect(() => {
-    const consent = localStorage.getItem("cookieConsent");
-    if (consent) {
+    const cookieConsent = localStorage.getItem("cookieConsent");
+    if (cookieConsent === "accepted") {
       setShowLoading(true);
+      fetchRSSNews();
+    } else {
+      setIsReady(false);
     }
   }, []);
 
   useEffect(() => {
     if (selectedCategory === "Todas") {
-      setFilteredNews(mockNews);
+      setFilteredNews(allNews);
     } else {
-      setFilteredNews(mockNews.filter((news) => news.category === selectedCategory));
+      setFilteredNews(allNews.filter((news) => news.category === selectedCategory));
     }
-  }, [selectedCategory]);
+  }, [selectedCategory, allNews]);
+
+  const fetchRSSNews = async () => {
+    try {
+      setIsLoadingNews(true);
+      
+      // Tentar buscar do cache primeiro
+      const cachedNews = localStorage.getItem('rss-news');
+      const cacheTime = localStorage.getItem('rss-news-time');
+      const now = Date.now();
+      
+      // Cache válido por 30 minutos
+      if (cachedNews && cacheTime && (now - parseInt(cacheTime)) < 30 * 60 * 1000) {
+        const news = JSON.parse(cachedNews);
+        setAllNews(news);
+        setFilteredNews(news);
+        setIsLoadingNews(false);
+        return;
+      }
+
+      // Buscar do RSS
+      const { data, error } = await supabase.functions.invoke('fetch-rss-news');
+
+      if (error) {
+        console.error('Error fetching RSS news:', error);
+        toast.error('Erro ao carregar notícias. Usando dados do cache.');
+        
+        // Usar cache mesmo se expirado
+        if (cachedNews) {
+          const news = JSON.parse(cachedNews);
+          setAllNews(news);
+          setFilteredNews(news);
+        }
+      } else if (data?.news && data.news.length > 0) {
+        setAllNews(data.news);
+        setFilteredNews(data.news);
+        
+        // Salvar no cache
+        localStorage.setItem('rss-news', JSON.stringify(data.news));
+        localStorage.setItem('rss-news-time', now.toString());
+        
+        toast.success(`${data.news.length} notícias carregadas com sucesso!`);
+      }
+    } catch (error) {
+      console.error('Error in fetchRSSNews:', error);
+      toast.error('Erro ao carregar notícias');
+    } finally {
+      setIsLoadingNews(false);
+    }
+  };
 
   const handleLoadingComplete = () => {
     setShowLoading(false);
@@ -32,12 +88,16 @@ const Index = () => {
   };
 
   const handleSearch = (query: string) => {
-    const filtered = mockNews.filter(
-      (news) =>
-        news.title.toLowerCase().includes(query.toLowerCase()) ||
-        news.summary.toLowerCase().includes(query.toLowerCase())
-    );
-    setFilteredNews(filtered);
+    if (query.trim() === "") {
+      setFilteredNews(selectedCategory === "Todas" ? allNews : allNews.filter(n => n.category === selectedCategory));
+    } else {
+      const searchResults = allNews.filter(
+        (news) =>
+          news.title.toLowerCase().includes(query.toLowerCase()) ||
+          news.summary.toLowerCase().includes(query.toLowerCase())
+      );
+      setFilteredNews(searchResults);
+    }
   };
 
   const handleCategoryChange = (category: string) => {
@@ -76,7 +136,14 @@ const Index = () => {
             </span>
           </div>
 
-          {filteredNews.length === 0 ? (
+          {isLoadingNews ? (
+            <div className="flex items-center justify-center py-20">
+              <div className="text-center space-y-4">
+                <div className="w-16 h-16 mx-auto border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
+                <p className="text-muted-foreground">A carregar notícias do RSS...</p>
+              </div>
+            </div>
+          ) : filteredNews.length === 0 ? (
             <div className="text-center py-20">
               <p className="text-xl text-muted-foreground">
                 Nenhuma notícia encontrada
