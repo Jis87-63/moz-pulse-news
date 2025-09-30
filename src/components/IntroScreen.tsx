@@ -29,7 +29,7 @@ export const IntroScreen = ({ onComplete }: IntroScreenProps) => {
     {
       icon: <Clock className="w-16 h-16 text-primary" />,
       title: "Sempre Atualizado",
-      description: "As notícias são carregadas automaticamente de fontes RSS confiáveis, mantendo você sempre informado."
+      description: "As notícias são carregadas automaticamente de fontes confiáveis de Moçambique, mantendo você sempre informado em tempo real."
     }
   ];
 

@@ -145,6 +145,16 @@ const Index = () => {
           </p>
         </section>
 
+        {/* Google AdSense - Anúncio Superior */}
+        <div className="my-8 flex justify-center">
+          <ins className="adsbygoogle"
+               style={{ display: 'block' }}
+               data-ad-client="ca-pub-2569329537599023"
+               data-ad-slot="1234567890"
+               data-ad-format="horizontal"
+               data-full-width-responsive="true"></ins>
+        </div>
+
         <section className="space-y-8">
           <div className="flex items-center justify-between">
             <h2 className="text-2xl font-bold">
@@ -181,6 +191,16 @@ const Index = () => {
             </div>
           )}
         </section>
+
+        {/* Google AdSense - Anúncio Inferior */}
+        <div className="my-8 flex justify-center">
+          <ins className="adsbygoogle"
+               style={{ display: 'block' }}
+               data-ad-client="ca-pub-2569329537599023"
+               data-ad-slot="0987654321"
+               data-ad-format="horizontal"
+               data-full-width-responsive="true"></ins>
+        </div>
       </main>
 
       <footer className="border-t border-border/40 mt-20">
@@ -189,17 +209,17 @@ const Index = () => {
             <p className="text-sm text-muted-foreground">
               © 2024 O País. Todos os direitos reservados.
             </p>
-            <div className="flex justify-center gap-6 text-sm">
-              <a href="#" className="text-muted-foreground hover:text-primary smooth-transition">
+            <div className="flex justify-center gap-6 text-sm flex-wrap">
+              <a href="/sobre" className="text-muted-foreground hover:text-primary smooth-transition">
                 Sobre
               </a>
-              <a href="#" className="text-muted-foreground hover:text-primary smooth-transition">
+              <a href="/contacto" className="text-muted-foreground hover:text-primary smooth-transition">
                 Contacto
               </a>
-              <a href="#" className="text-muted-foreground hover:text-primary smooth-transition">
+              <a href="/privacidade" className="text-muted-foreground hover:text-primary smooth-transition">
                 Política de Privacidade
               </a>
-              <a href="#" className="text-muted-foreground hover:text-primary smooth-transition">
+              <a href="/termos" className="text-muted-foreground hover:text-primary smooth-transition">
                 Termos de Uso
               </a>
             </div>
