@@ -1,4 +1,4 @@
-import { Search, Menu, Newspaper } from "lucide-react";
+import { Search, Menu, Newspaper, Mail, Facebook } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
@@ -58,14 +58,37 @@ export const Header = ({ onSearch, onCategoryChange }: HeaderProps) => {
             ))}
           </nav>
 
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2 md:space-x-4">
+            {/* Contatos - Desktop */}
+            <div className="hidden lg:flex items-center space-x-3 text-sm text-muted-foreground">
+              <a
+                href="mailto:Opais@muskdev.com"
+                className="flex items-center gap-1.5 hover:text-primary smooth-transition"
+                title="Email"
+              >
+                <Mail className="h-4 w-4" />
+                <span className="hidden xl:inline">Opais@muskdev.com</span>
+              </a>
+              <span className="text-border">|</span>
+              <a
+                href="https://www.facebook.com/profile.php?id=61579379653310"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1.5 hover:text-primary smooth-transition"
+                title="Facebook"
+              >
+                <Facebook className="h-4 w-4" />
+                <span className="hidden xl:inline">Facebook</span>
+              </a>
+            </div>
+
             <form onSubmit={handleSearch} className="hidden md:block">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
                   type="search"
                   placeholder="Pesquisar notícias..."
-                  className="w-64 pl-10 bg-secondary/50 border-border/50 focus:border-primary smooth-transition"
+                  className="w-48 lg:w-64 pl-10 bg-secondary/50 border-border/50 focus:border-primary smooth-transition"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
@@ -84,8 +107,8 @@ export const Header = ({ onSearch, onCategoryChange }: HeaderProps) => {
         </div>
 
         {mobileMenuOpen && (
-          <div className="md:hidden border-t border-border/40 py-4 animate-fade-in">
-            <form onSubmit={handleSearch} className="mb-4">
+          <div className="md:hidden border-t border-border/40 py-4 animate-fade-in space-y-4">
+            <form onSubmit={handleSearch}>
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
@@ -97,6 +120,7 @@ export const Header = ({ onSearch, onCategoryChange }: HeaderProps) => {
                 />
               </div>
             </form>
+
             <nav className="flex flex-col space-y-3">
               {categories.map((category) => (
                 <button
@@ -111,6 +135,26 @@ export const Header = ({ onSearch, onCategoryChange }: HeaderProps) => {
                 </button>
               ))}
             </nav>
+
+            {/* Contatos - Mobile */}
+            <div className="flex flex-col space-y-3 pt-4 border-t border-border/40">
+              <a
+                href="mailto:Opais@muskdev.com"
+                className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary smooth-transition"
+              >
+                <Mail className="h-4 w-4" />
+                Opais@muskdev.com
+              </a>
+              <a
+                href="https://www.facebook.com/profile.php?id=61579379653310"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary smooth-transition"
+              >
+                <Facebook className="h-4 w-4" />
+                Página no Facebook
+              </a>
+            </div>
           </div>
         )}
       </div>

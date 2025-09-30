@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -32,6 +33,12 @@ serve(async (req) => {
 
   try {
     console.log('Fetching RSS feeds...');
+    
+    // Inicializar Supabase client
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabase = createClient(supabaseUrl, supabaseKey);
+    
     const allNews: NewsItem[] = [];
 
     for (const feedUrl of RSS_FEEDS) {
@@ -102,6 +109,39 @@ serve(async (req) => {
     allNews.sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime());
 
     console.log(`Successfully fetched ${allNews.length} news articles`);
+
+    // Salvar notícias no banco de dados
+    if (allNews.length > 0) {
+      try {
+        const newsToInsert = allNews.map(news => ({
+          id: news.id,
+          title: news.title,
+          summary: news.summary,
+          content: news.content,
+          image_url: news.imageUrl,
+          category: news.category,
+          author: news.author,
+          published_at: news.publishedAt,
+          read_time: news.readTime,
+          video_url: null,
+          audio_url: null,
+          source: news.source
+        }));
+
+        // Usar upsert para evitar duplicatas
+        const { error: dbError } = await supabase
+          .from('news_archive')
+          .upsert(newsToInsert, { onConflict: 'id' });
+
+        if (dbError) {
+          console.error('Error saving to database:', dbError);
+        } else {
+          console.log(`Saved ${newsToInsert.length} news articles to database`);
+        }
+      } catch (dbError) {
+        console.error('Database error:', dbError);
+      }
+    }
 
     return new Response(JSON.stringify({ news: allNews }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

@@ -26,59 +26,37 @@ export const CookieConsent = () => {
   if (!show) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm animate-fade-in">
-      <Card className="relative max-w-2xl mx-4 p-8 card-gradient border-primary/20 glow-effect animate-scale-in">
-        <button
-          onClick={handleDecline}
-          className="absolute top-4 right-4 text-muted-foreground hover:text-foreground smooth-transition"
-          aria-label="Fechar"
-        >
-          <X className="h-5 w-5" />
-        </button>
-
-        <div className="space-y-6">
-          <div className="space-y-2">
-            <h2 className="text-3xl font-bold bg-clip-text text-transparent cosmic-gradient">
-              Bem-vindo ao O País
-            </h2>
-            <p className="text-muted-foreground text-lg">
-              As melhores notícias de Moçambique
-            </p>
-          </div>
-
-          <div className="space-y-4 text-sm text-muted-foreground">
-            <p>
-              Este site utiliza cookies e tecnologias semelhantes para melhorar a sua experiência de navegação, 
-              personalizar conteúdo e anúncios, e analisar o tráfego do site.
-            </p>
-            <p>
-              Ao continuar a navegar, você concorda com a nossa{" "}
+    <div className="fixed bottom-0 left-0 right-0 z-50 p-4 animate-fade-in">
+      <Card className="max-w-7xl mx-auto p-4 md:p-6 bg-card/95 backdrop-blur-xl border-border/50">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+          <div className="flex-1 space-y-2">
+            <h3 className="text-lg font-semibold text-foreground">
+              🍪 Cookies e Privacidade
+            </h3>
+            <p className="text-sm text-muted-foreground">
+              Utilizamos cookies para melhorar sua experiência. Ao continuar navegando, você concorda com nossa{" "}
               <a href="#" className="text-primary hover:underline">
                 Política de Privacidade
-              </a>{" "}
-              e{" "}
-              <a href="#" className="text-primary hover:underline">
-                Termos de Uso
               </a>
               .
             </p>
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-3">
-            <Button
-              onClick={handleAccept}
-              className="flex-1 cosmic-gradient text-white font-semibold hover:opacity-90 smooth-transition"
-              size="lg"
-            >
-              Aceitar e Continuar
-            </Button>
+          <div className="flex items-center gap-3 w-full md:w-auto">
             <Button
               onClick={handleDecline}
               variant="outline"
-              className="flex-1 border-primary/30 hover:bg-primary/10"
-              size="lg"
+              size="sm"
+              className="flex-1 md:flex-none"
             >
-              Apenas Essenciais
+              Recusar
+            </Button>
+            <Button
+              onClick={handleAccept}
+              size="sm"
+              className="flex-1 md:flex-none cosmic-gradient text-white hover:opacity-90"
+            >
+              Aceitar
             </Button>
           </div>
         </div>
